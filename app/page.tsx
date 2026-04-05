@@ -69,22 +69,24 @@ function ScienceSubsection({
   pullCite,
   stats,
   bgClass = "bg-background",
+  id,
 }: {
   title: string
   body: React.ReactNode
   pullQuote: string
   pullCite: string
-  stats: { stat: string; body: string; cite: string }[]
+  stats?: { stat: string; body: string; cite: string }[]
   bgClass?: string
+  id?: string
 }) {
   return (
-    <div className={`${bgClass} px-6 py-20 md:py-28`}>
+    <div id={id} className={`${bgClass} flex min-h-screen flex-col justify-center px-6 py-20 md:py-28`}>
       <div className="mx-auto max-w-5xl">
         <h3 className="max-w-2xl font-serif text-[clamp(1.3rem,2.5vw,1.75rem)] leading-snug tracking-tight">
           {title}
         </h3>
 
-        <div className="mt-8 max-w-2xl space-y-5 text-base leading-relaxed text-muted-foreground">
+        <div className="mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground">
           {body}
         </div>
 
@@ -93,30 +95,26 @@ function ScienceSubsection({
             {pullQuote}
           </p>
           <cite className="mt-4 block text-sm not-italic tracking-wide text-muted-foreground">
-            &mdash; {pullCite}
+            {pullCite}
           </cite>
         </blockquote>
 
-        <div className="grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
+        {stats && stats.length > 0 && <div className="grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-3">
           {stats.map(({ stat, body: statBody, cite }) => (
             <div
               key={stat}
               className="flex flex-col justify-between bg-background p-7 md:p-9"
             >
-              <div>
-                <span className="font-serif text-3xl tracking-tight text-accent md:text-4xl">
-                  {stat}
-                </span>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {statBody}
-                </p>
-              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                <span className="font-medium text-accent">{stat}</span>{" "}
+                {statBody}
+              </p>
               <p className="mt-5 text-[11px] italic text-muted-foreground/50">
                 {cite}
               </p>
             </div>
           ))}
-        </div>
+        </div>}
       </div>
     </div>
   )
@@ -124,6 +122,7 @@ function ScienceSubsection({
 
 export default function Page() {
   const [citationsOpen, setCitationsOpen] = useState(false)
+  const [researchOpen, setResearchOpen] = useState(false)
 
   return (
     <main className="min-h-screen">
@@ -256,7 +255,7 @@ export default function Page() {
 
             <div className="mt-10 space-y-5 text-lg leading-relaxed text-muted-foreground">
               <p>
-                Three rooms across London. Warm grey walls, good light, a chair
+                Quiet rooms across London. Warm grey walls, good light, a chair
                 that doesn&rsquo;t fight you. No music. No instructions. No
                 agenda.
               </p>
@@ -280,7 +279,7 @@ export default function Page() {
                 label: "Membership",
                 value: "\u00A320/month \u00B7 8 sessions",
               },
-              { label: "Location", value: "London \u00B7 3 sites \u00B7 TBC" },
+              { label: "Location", value: "London \u00B7 Multiple sites \u00B7 TBC" },
             ].map(({ label, value }) => (
               <div
                 key={label}
@@ -307,74 +306,93 @@ export default function Page() {
           <h2 className="mt-6 max-w-3xl font-serif text-[clamp(2rem,4vw,3.2rem)] leading-tight tracking-tight">
             The brain doesn&rsquo;t idle. It was just waiting for the room.
           </h2>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setResearchOpen((prev) => {
+                const next = !prev
+                if (next) {
+                  setTimeout(() => {
+                    document
+                      .getElementById("research-subsection-1")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }, 50)
+                }
+                return next
+              })
+            }}
+            className="mt-8 border border-border px-6 text-sm tracking-wide"
+          >
+            {researchOpen ? "Hide the research" : "See the research"}
+          </Button>
         </div>
       </Section>
+
+      {researchOpen && (<>
+      {/* Fixed hide button */}
+      <div className="fixed top-8 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <Button
+          variant="outline"
+          onClick={() => {
+            const target = document.getElementById("differentiator")
+            if (!target) return
+            target.scrollIntoView({ behavior: "smooth" })
+            const onEnd = () => {
+              window.removeEventListener("scrollend", onEnd)
+              setResearchOpen(false)
+            }
+            window.addEventListener("scrollend", onEnd, { once: true })
+          }}
+          className="pointer-events-auto rounded-full border-border bg-background/90 px-6 text-sm tracking-wide shadow-lg backdrop-blur-sm"
+        >
+          Hide research
+        </Button>
+      </div>
 
       {/* Science Subsection 1 */}
       <ScienceSubsection
         bgClass="bg-background"
-        title="Sitting alone feels unbearable. That's a recent development, and it's measurable."
+        id="research-subsection-1"
+        title="Sitting alone is uncomfortable. That discomfort is documented, consistent, and not personal."
         body={
-          <>
-            <p>
-              In 2014, researchers at Harvard and the University of Virginia ran
-              eleven studies in which participants were placed in a sparsely
-              furnished room for six to fifteen minutes &mdash; no phone, no
-              reading material, nothing to engage with &mdash; and asked to
-              entertain themselves with their thoughts.
-              <sup className="text-accent">[1]</sup> Most found it genuinely
-              unpleasant. In one sub-study, participants were given access to a
-              button that delivered a mild electric shock &mdash; a sensation
-              they had previously said they would pay money <em>not</em> to
-              experience. After fifteen minutes alone with nothing to do, 67% of
-              men and 25% of women pressed it at least once.
-              <sup className="text-accent">[1]</sup>
-            </p>
-            <p>
-              This wasn&rsquo;t a finding about masochism. It was a finding
-              about the modern mind&rsquo;s relationship to stillness. The
-              discomfort is real, well-documented, and not a personal failing
-              &mdash; it&rsquo;s what happens when a cognitive system that
-              evolved for continuous environmental engagement is suddenly given
-              nothing to engage with.
-            </p>
-            <p>
-              Separately, a large-scale experience-sampling study published in{" "}
-              <em>Science</em> pinged 2,250 adults at random moments throughout
-              their days and found that people spend 46.9% of their waking hours
-              thinking about something other than what they&rsquo;re currently
-              doing.<sup className="text-accent">[2]</sup> Mind-wandering at
-              that scale is the cognitive baseline &mdash; and the same study
-              found it was causally linked to lower reported happiness,
-              regardless of what people were actually doing at the time.
-              <sup className="text-accent">[2]</sup>
-            </p>
-            <p>
-              The discomfort of sitting in a quiet room is, in part, the
-              unfamiliarity of having nowhere for that wandering attention to
-              land. The Empty Room doesn&rsquo;t resolve that immediately. But
-              repeated exposure to unstructured quiet &mdash; voluntary, bounded,
-              comfortable &mdash; is exactly the condition under which that
-              discomfort begins to loosen.
-            </p>
-          </>
+          <p>
+            In eleven studies, Harvard and University of Virginia researchers
+            placed participants in a bare room for six to fifteen minutes with
+            no phone, no reading material, and nothing to do.
+            <sup className="text-accent">[1]</sup> Most found it unpleasant. In
+            one sub-study, 67% of men and 25% of women chose to self-administer
+            an electric shock rather than sit with their thoughts, despite
+            having previously said they would pay to avoid that sensation.
+            <sup className="text-accent">[1]</sup> A separate
+            experience-sampling study tracking 2,250 adults across 250,000
+            real-time data points found that people spend 46.9% of their waking
+            hours thinking about something other than their current activity,
+            and that mind-wandering was causally linked to lower happiness
+            regardless of what they were doing.
+            <sup className="text-accent">[2]</sup> The variance explained by
+            whether the mind was present (10.8%) exceeded the variance explained
+            by the activity itself (4.6%).
+            <sup className="text-accent">[2]</sup> The discomfort of an empty
+            room is not a character flaw. It is what an attention system
+            calibrated for constant input feels like when the input stops.
+          </p>
         }
-        pullQuote={`\u201CThe mind is designed to engage with the world. Without training, people prefer doing to thinking \u2014 even if what they\u2019re doing is painful.\u201D`}
+        pullQuote={`\u201CThe mind is designed to engage with the world. Without training, people prefer doing to thinking, even if what they\u2019re doing is painful.\u201D`}
         pullCite="Wilson et al., Harvard / University of Virginia, 2014"
         stats={[
           {
             stat: "67%",
-            body: "of male participants chose self-administered electric shock over sitting alone with their thoughts for 15 minutes.",
+            body: "of men in a controlled study chose self-administered electric shock over fifteen minutes alone with their thoughts.",
             cite: "Wilson et al., Science, 2014",
           },
           {
-            stat: "47%",
-            body: "of waking hours spent thinking about something other than the present task \u2014 across 250,000 real-time data points from 2,250 adults.",
+            stat: "46.9%",
+            body: "of waking hours spent mentally absent from whatever is physically happening. Mind-wandering is not the exception. It is the baseline.",
             cite: "Killingsworth & Gilbert, Science, 2010",
           },
           {
-            stat: ">10%",
-            body: "within-person variance in happiness explained by mind-wandering status alone \u2014 more than the activity being performed.",
+            stat: "4.6% vs 10.8%",
+            body: "The activity you\u2019re doing explains 4.6% of your happiness. Whether your mind is present explains more than twice that.",
             cite: "Killingsworth & Gilbert, Science, 2010",
           },
         ]}
@@ -383,242 +401,148 @@ export default function Page() {
       {/* Science Subsection 2 */}
       <ScienceSubsection
         bgClass="bg-secondary"
-        title="The idle brain is not resting. It's running a process you've been interrupting."
+        title="When the brain goes quiet on the outside, it starts work on the inside."
         body={
-          <>
-            <p>
-              When external demands fall away, a specific network of brain
-              regions becomes <em>more</em> active &mdash; not less. The medial
-              prefrontal cortex, posterior cingulate cortex, precuneus, and
-              medial temporal lobes collectively form what neuroscientists call
-              the Default Mode Network (DMN).
-              <sup className="text-accent">[3]</sup> A comprehensive review
-              synthesising three decades of neuroimaging research found this
-              network is consistently engaged during autobiographical memory
-              retrieval, future simulation, social cognition, and
-              self-referential thought.
-              <sup className="text-accent">[3]</sup>
-            </p>
-            <p>
-              This has a direct implication for creativity. A University of
-              Central Lancashire study found that participants who spent fifteen
-              minutes on a deliberately dull task subsequently produced
-              measurably more creative output than a control group who went
-              straight to the creative task.
-              <sup className="text-accent">[4]</sup> The more passive the
-              inactivity, the larger the effect.
-              <sup className="text-accent">[4]</sup>
-            </p>
-            <p>
-              Boredom itself has a specific attentional signature. A theoretical
-              synthesis identified boredom not as simple under-stimulation, but
-              as a failure of attention &mdash; the inability to lock onto either
-              internal or external information in a way that feels meaningful.
-              <sup className="text-accent">[5]</sup> But the same researchers
-              documented boredom&rsquo;s well-established links to
-              meaning-seeking behaviour: bored individuals reliably pursue
-              activities and ideas that seem purposive.
-              <sup className="text-accent">[5]</sup> Boredom is not a void. It
-              is pressure &mdash; a signal that available cognitive capacity
-              wants somewhere to go.
-            </p>
-          </>
+          <p>
+            Neuroimaging research spanning three decades shows that when external
+            demands fall away, a network of brain regions becomes more active,
+            not less. The Default Mode Network (DMN), comprising the medial
+            prefrontal cortex, posterior cingulate cortex, precuneus, and medial
+            temporal lobes, activates during rest and runs autobiographical
+            memory retrieval, future simulation, social cognition, and
+            self-referential thought.
+            <sup className="text-accent">[3]</sup> Disrupted DMN function
+            appears among the earliest measurable signs of depression,
+            schizophrenia, and Alzheimer&rsquo;s disease, indicating that
+            idle-brain processing carries clinical weight.
+            <sup className="text-accent">[3]</sup> A University of Central
+            Lancashire study found that participants who performed a passive,
+            monotonous task before a creative challenge produced measurably more
+            creative output than those who went straight to it, with the more
+            passive the inactivity, the greater the gain, mediated by
+            daydreaming and associative thought.
+            <sup className="text-accent">[4]</sup> Boredom research from York
+            University and the University of Waterloo identifies this as
+            attentional failure with a functional purpose: bored individuals
+            show increased motivation to pursue meaningful activity, including
+            creative work and prosocial behaviour.
+            <sup className="text-accent">[5]</sup> Sitting in a quiet room and
+            finding it dull is frequently the precondition for what follows.
+          </p>
         }
         pullQuote={`\u201CWhen you\u2019re bored, you tend to daydream and your mind wanders, and this is a very important part of the creative process.\u201D`}
         pullCite="Sandi Mann, University of Central Lancashire"
-        stats={[
-          {
-            stat: "4,000+",
-            body: "citations for Buckner et al.\u2019s foundational review of the Default Mode Network \u2014 among the most referenced papers in cognitive neuroscience.",
-            cite: "Buckner et al., 2008",
-          },
-          {
-            stat: "More creative",
-            body: "output produced by participants who did a passive, boring task before a creative challenge than those who went straight to it.",
-            cite: "Mann & Cadman, 2014",
-          },
-          {
-            stat: "Meaning-seeking",
-            body: "reliably increases after boredom induction \u2014 bored participants show greater intention to volunteer, create, and engage with purposive activity.",
-            cite: "Eastwood et al., 2012",
-          },
-        ]}
       />
 
       {/* Science Subsection 3 */}
       <ScienceSubsection
         bgClass="bg-background"
-        title="The same absence of stimulation that feels distressing can be deeply restorative. The difference is whether you chose it."
+        title="The same quiet that feels distressing in one context is clinically restorative in another. The variable is choice."
         body={
-          <>
-            <p>
-              In 2009, researchers placed nineteen healthy volunteers in a
-              pitch-black, soundproofed chamber for fifteen minutes. Five
-              reported visual hallucinations of faces, six saw shapes that
-              weren&rsquo;t present, and two reported sensing an unexplained
-              presence in the room.<sup className="text-accent">[6]</sup> The
-              brain fills any perceptual vacancy &mdash; without environmental
-              input to check against, it begins misattributing internally
-              generated signals as external.
-              <sup className="text-accent">[7]</sup>
-            </p>
-            <p>
-              The Empty Room is not a sensory deprivation chamber. It is quiet,
-              not silent. Dim, not dark. The distinction matters &mdash; and
-              it&rsquo;s where the therapeutic research becomes relevant.
-            </p>
-            <p>
-              Flotation REST uses voluntary, comfortable near-total sensory
-              reduction to produce measurable psychological effects. A 2025
-              systematic review of 63 studies covering 1,838 participants found
-              consistently positive effects on pain, stress, anxiety, and
-              general mental wellbeing.
-              <sup className="text-accent">[8]</sup> A 2018 study found that
-              single flotation sessions produced anxiolytic effects that
-              persisted for over 48 hours.
-              <sup className="text-accent">[9]</sup>
-            </p>
-            <p>
-              What changes is agency &mdash; the knowledge that you can leave,
-              that the experience is bounded, that you selected it. Thirty
-              minutes in a quiet room that you booked from your phone is an
-              entirely different cognitive event than thirty minutes in a quiet
-              room you were placed in. That gap &mdash; between imposed
-              stillness and chosen stillness &mdash; is the entire business.
-            </p>
-          </>
+          <p>
+            Researchers placed nineteen healthy volunteers in a pitch-black,
+            soundproofed chamber for fifteen minutes and measured psychotic-like
+            experiences before and after. Five reported visual hallucinations of
+            faces, six saw shapes that weren&rsquo;t there, and two reported
+            sensing an unexplained presence.
+            <sup className="text-accent">[6]</sup> A 2015 follow-up with 46
+            participants confirmed the effect across both high and low
+            hallucination-prone individuals, with state anxiety independently
+            predicting severity of distortions, attributed to faulty source
+            monitoring: without external input, the brain begins misattributing
+            internally generated signals as coming from outside.
+            <sup className="text-accent">[7]</sup> The Empty Room is quiet, not
+            silent, and this is deliberate. Voluntary, comfortable sensory
+            reduction produces opposite effects. A 2025 systematic review of 63
+            flotation REST studies covering 1,838 participants found consistent
+            positive outcomes across anxiety, pain, stress, and general mental
+            wellbeing.<sup className="text-accent">[8]</sup> A 2018 clinical
+            study found that a single flotation session produced anxiolytic and
+            antidepressant effects persisting beyond 48 hours.
+            <sup className="text-accent">[9]</sup> The same absence of
+            stimulation that destabilises the brain when imposed becomes
+            restorative when chosen. That is the mechanical basis of this
+            business.
+          </p>
         }
-        pullQuote={`\u201CContext, agency, and expectation fundamentally alter the psychological experience of doing nothing.\u201D`}
-        pullCite="Synthesised from Feinstein et al. (2018) and Lashgari et al. (2025)"
+        pullQuote={`\u201CFloatation-REST produced significant reductions in anxiety and improvements in mood that outlasted the session itself.\u201D`}
+        pullCite="Feinstein et al., PLOS One, 2018"
         stats={[
           {
-            stat: "48 hrs",
-            body: "duration of anxiety reduction following a single flotation session in healthy adults with elevated anxiety.",
+            stat: "48 hours",
+            body: "of measurable anxiety reduction following a single voluntary quiet session. The effect persists well beyond the room.",
             cite: "Feinstein et al., PLOS One, 2018",
           },
           {
-            stat: "63 studies",
-            body: "synthesised in the 2025 systematic review of flotation REST \u2014 consistent positive effects across pain, stress, and mental wellbeing.",
+            stat: "63 studies.",
+            body: "The 2025 systematic review of flotation REST found consistent positive effects on anxiety, pain, and stress across all populations studied on 1,838 participants.",
             cite: "Lashgari et al., 2025",
           },
           {
-            stat: "15 min",
-            body: "time before healthy volunteers in a dark, silent room begin reporting perceptual distortions \u2014 demonstrating how quickly the brain responds to absent stimulation.",
+            stat: "15 minutes",
+            body: "is how long it takes in a dark, silent room before healthy people with no predisposition to psychosis begin experiencing perceptual distortions. The brain fills a void fast.",
             cite: "Mason & Brady, 2009",
           },
         ]}
       />
-
-      {/* Citation block */}
-      <div className="border-t border-border bg-secondary px-6 py-12">
-        <div className="mx-auto max-w-5xl">
-          <button
-            onClick={() => setCitationsOpen(!citationsOpen)}
-            className="flex items-center gap-2 text-xs tracking-[0.2em] text-muted-foreground uppercase transition-colors hover:text-foreground"
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              className={`transition-transform duration-300 ${citationsOpen ? "rotate-90" : ""}`}
-            >
-              <path
-                d="M4 2l4 4-4 4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            References
-          </button>
-
-          {citationsOpen && (
-            <ol className="mt-6 space-y-2 text-xs leading-relaxed text-muted-foreground/70">
-              <li>
-                [1] Wilson, T.D., et al. (2014). Just think: The challenges of
-                the disengaged mind. <em>Science</em>, 345(6192), 75&ndash;77.
-              </li>
-              <li>
-                [2] Killingsworth, M.A., &amp; Gilbert, D.T. (2010). A wandering
-                mind is an unhappy mind. <em>Science</em>, 330(6006), 932.
-              </li>
-              <li>
-                [3] Buckner, R.L., Andrews-Hanna, J.R., &amp; Schacter, D.L.
-                (2008). The brain&rsquo;s default network. <em>Annals of the New
-                York Academy of Sciences</em>, 1124, 1&ndash;38.
-              </li>
-              <li>
-                [4] Mann, S., &amp; Cadman, R. (2014). Does being bored make us
-                more creative? <em>Creativity Research Journal</em>, 26(2),
-                165&ndash;173.
-              </li>
-              <li>
-                [5] Eastwood, J.D., et al. (2012). The unengaged mind: Defining
-                boredom in terms of attention. <em>Perspectives on Psychological
-                Science</em>, 7(5), 482&ndash;495.
-              </li>
-              <li>
-                [6] Mason, O.J., &amp; Brady, F. (2009). The psychotomimetic
-                effects of short-term sensory deprivation. <em>Journal of
-                Nervous and Mental Disease</em>, 197(10), 783&ndash;785.
-              </li>
-              <li>
-                [7] Daniel, C., &amp; Mason, O.J. (2015). Predicting
-                psychotic-like experiences during sensory deprivation.{" "}
-                <em>BioMed Research International</em>, 2015, 439379.
-              </li>
-              <li>
-                [8] Lashgari, E., et al. (2025). A systematic review of
-                flotation-REST. <em>BMC Complementary Medicine and
-                Therapies</em>, 25, 230.
-              </li>
-              <li>
-                [9] Feinstein, J.S., et al. (2018). Examining the short-term
-                anxiolytic and antidepressant effect of floatation-REST.{" "}
-                <em>PLOS One</em>, 13(2), e0190292.
-              </li>
-            </ol>
-          )}
-        </div>
-      </div>
+      </>)}
 
       {/* ─── DIFFERENTIATOR ─── */}
-      <Section className="px-6 py-28 md:py-40">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-serif text-[clamp(1.4rem,2.8vw,2.2rem)] leading-snug tracking-tight">
-            A float tank costs &pound;70 and requires lying in saltwater in
-            complete darkness.
-            <span className="mt-3 block">
-              A meditation app requires a daily practice, a streak, and the
-              discipline to start.
+      <Section id="differentiator" className="md:grid md:grid-cols-2">
+        {/* Placeholder illustration — full bleed left half on desktop */}
+        <div className="hidden md:flex md:items-center md:justify-center md:bg-secondary">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-muted-foreground/30">
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            <span className="text-xs tracking-[0.2em] uppercase">
+              Illustration
             </span>
-            <span className="mt-3 block">
-              The Empty Room requires a booking and the willingness to sit down.
-            </span>
-          </h2>
+          </div>
+        </div>
 
-          <div className="mt-12 max-w-2xl space-y-5 text-base leading-relaxed text-muted-foreground">
-            <p>
-              Flotation REST is effective &mdash; the 2025 systematic review of
-              63 studies confirms it.<sup className="text-accent">[8]</sup> But
-              at &pound;50&ndash;&pound;90 a session and with a sensory
-              experience that takes genuine acclimatisation, the barrier to a
-              first visit is high. Many people who would benefit never try it.
-            </p>
-            <p>
-              Meditation apps carry their own cost: they convert a spontaneous
-              human capacity into a programme with progress metrics. The streak
-              becomes the point. The app becomes another obligation. Plenty of
-              people have downloaded three of them and used none.
-            </p>
-            <p>
-              The Empty Room asks for thirty minutes. The cognitive heavy lifting
-              happens whether you intend it to or not &mdash; that&rsquo;s what
-              the Default Mode Network research shows. You don&rsquo;t need a
-              technique. You need a room.
-            </p>
+        <div className="px-6 py-28 md:py-40 md:pl-16 md:pr-12 lg:pl-20 lg:pr-16">
+          <div className="max-w-lg">
+            <h2 className="font-serif text-[clamp(1.4rem,2.8vw,2.2rem)] leading-snug tracking-tight">
+              A float tank costs &pound;70 and requires lying in saltwater in
+              complete darkness.
+              <span className="mt-3 block">
+                A meditation app requires a daily practice, a streak, and the
+                discipline to start.
+              </span>
+              <span className="mt-3 block">
+                The Empty Room requires a booking and the willingness to sit
+                down.
+              </span>
+            </h2>
+
+            <div className="mt-12 space-y-5 text-base leading-relaxed text-muted-foreground">
+              <p>
+                Flotation REST is effective. A 2025 systematic review of 63
+                studies confirms it.<sup className="text-accent">[8]</sup> At
+                &pound;50 to &pound;90 a session, with a sensory experience that
+                takes genuine acclimatisation, most people who would benefit
+                never try it. Meditation apps convert a spontaneous human
+                capacity into a programme with progress metrics. The streak
+                becomes the point. The app becomes another obligation.
+              </p>
+              <p>
+                The Empty Room asks for thirty minutes. The cognitive work
+                happens whether you intend it to or not. You don&rsquo;t need a
+                technique. You need a room.
+              </p>
+            </div>
           </div>
         </div>
       </Section>
@@ -634,14 +558,14 @@ export default function Page() {
             We&rsquo;re building the waitlist before we build the rooms. Sign up
             now and you get first access when we open by area, your first
             session at &pound;3 rather than the standard drop-in rate, and a
-            question from us about which part of London you&rsquo;d actually use
-            this in.
+            direct question from us about which part of London you&rsquo;d
+            actually use this in.
           </p>
 
           <p className="mt-6 text-base leading-relaxed text-muted-foreground">
             We&rsquo;re opening one room, running it properly, and expanding
-            when the occupancy data tells us to &mdash; not on a schedule, and
-            not because it feels like time.
+            when the occupancy data says to. Not on a schedule. Not because it
+            feels like time.
           </p>
 
           <div className="mt-12">
@@ -675,7 +599,7 @@ export default function Page() {
             },
             {
               quote:
-                "\u201CI float every couple of months. This is different \u2014 shorter, easier to fit into a day, no prep. They\u2019re solving separate problems. I\u2019ll use both.\u201D",
+                "\u201CI float every couple of months. This is different. Shorter, easier to fit into a day, no prep. They solve separate problems. I\u2019ll use both.\u201D",
               author: "Rachel K., Bermondsey",
             },
             {
@@ -702,7 +626,7 @@ export default function Page() {
                 {quote}
               </p>
               <p className="mt-6 text-xs tracking-wide text-muted-foreground">
-                &mdash; {author} &middot; prototype session
+                {author} &middot; prototype session
               </p>
             </div>
           ))}
@@ -720,27 +644,27 @@ export default function Page() {
             {[
               {
                 q: "What is actually in the room?",
-                a: "A chair. Warm, indirect lighting. Off-white or warm grey walls. Quiet \u2014 not silent; ambient sound sits below 30 decibels. A door that closes. Nothing on the walls.",
+                a: "A chair. Warm, indirect lighting. Off-white or warm grey walls. Quiet, not silent; ambient sound sits below 30 decibels. A door that closes. Nothing on the walls.",
               },
               {
                 q: "Why would I pay for this when I could just sit in a park?",
-                a: "You could. A park offers birdsong, joggers, dogs, phone signal, and the low-grade social pressure of being seen sitting still without obvious purpose. If that environment delivers what you need, it probably already would be. Most people find that having a space with no social context and no external demands is a qualitatively different experience from simply being somewhere quiet. The room removes the variables you didn\u2019t know were still pulling at your attention.",
+                a: "You could. A park offers birdsong, joggers, dogs, phone signal, and the low-grade social pressure of being seen sitting still without obvious purpose. Most people find that a space with no social context and no ambient demands is a qualitatively different experience from simply being somewhere quiet. The room removes the variables you didn\u2019t know were still pulling at your attention.",
               },
               {
                 q: "Is this a meditation thing?",
-                a: "No. There\u2019s nothing to follow, no technique required, no guidance. If you want to meditate, meditate. If you want to sit there and think about your mortgage, that\u2019s equally fine. The research on the Default Mode Network suggests the brain does useful work either way.",
+                a: "No. There\u2019s nothing to follow, no technique required, no guidance. If you want to meditate, meditate. If you want to sit there and think about your mortgage, that\u2019s equally fine. The Default Mode Network research suggests the brain does useful work either way.",
               },
               {
                 q: "Is it safe?",
-                a: "Pre-book only \u2014 we know who\u2019s in which room and when each session ends. The app prompts you to check out; if a session overruns by five minutes, we\u2019re alerted. Emergency contact is collected at booking. You can leave at any point. The door is not locked.",
+                a: "Pre-book only. We know who\u2019s in which room and when each session ends. The app prompts you to check out; if a session overruns by five minutes, we\u2019re alerted. Emergency contact is collected at booking. You can leave at any point. The door is not locked.",
               },
               {
                 q: "What if I find it uncomfortable?",
-                a: "You probably will, at least for the first few minutes. The Wilson et al. research is clear on this \u2014 the discomfort is normal, consistent across age groups, and not a sign the experience isn\u2019t working. It generally settles. If it doesn\u2019t, you leave.",
+                a: "You probably will, at least for the first few minutes. Wilson et al. are clear that this is normal, consistent across age groups, and not a sign the experience isn\u2019t working. It generally settles. If it doesn\u2019t, you leave.",
               },
               {
                 q: "Why 30 minutes?",
-                a: "We tested 20, 30, and 45. Thirty was the most consistent result \u2014 long enough to move past the initial discomfort, short enough to be genuinely usable on a weekday.",
+                a: "We tested 20, 30, and 45. Thirty was the most consistent result. Long enough to move past the initial discomfort, short enough to fit into a weekday.",
               },
             ].map(({ q, a }, i) => (
               <AccordionItem key={i} value={`faq-${i}`} className="py-2">
@@ -792,6 +716,84 @@ export default function Page() {
           <div className="space-y-1 text-xs text-muted-foreground/60">
             <p className="italic">Built on the psychology of doing nothing.</p>
             <p>&copy; The Empty Room 2025</p>
+          </div>
+
+          {/* References */}
+          <div className="mt-4 flex flex-col items-center">
+            <button
+              onClick={() => setCitationsOpen(!citationsOpen)}
+              className="flex items-center gap-2 text-xs tracking-[0.2em] text-muted-foreground/60 uppercase transition-colors hover:text-foreground"
+            >
+              References
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                className={`transition-transform duration-300 ${citationsOpen ? "rotate-90" : ""}`}
+              >
+                <path
+                  d="M4 2l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            {citationsOpen && (
+              <ol className="mt-6 max-w-2xl space-y-2 text-left text-xs leading-relaxed text-muted-foreground/60">
+                <li>
+                  [1] Wilson, T.D., et al. (2014). Just think: The challenges
+                  of the disengaged mind. <em>Science</em>, 345(6192),
+                  75&ndash;77.
+                </li>
+                <li>
+                  [2] Killingsworth, M.A., &amp; Gilbert, D.T. (2010). A
+                  wandering mind is an unhappy mind. <em>Science</em>,
+                  330(6006), 932.
+                </li>
+                <li>
+                  [3] Buckner, R.L., Andrews-Hanna, J.R., &amp; Schacter, D.L.
+                  (2008). The brain&rsquo;s default network.{" "}
+                  <em>Annals of the New York Academy of Sciences</em>, 1124,
+                  1&ndash;38.
+                </li>
+                <li>
+                  [4] Mann, S., &amp; Cadman, R. (2014). Does being bored make
+                  us more creative? <em>Creativity Research Journal</em>, 26(2),
+                  165&ndash;173.
+                </li>
+                <li>
+                  [5] Eastwood, J.D., et al. (2012). The unengaged mind:
+                  Defining boredom in terms of attention.{" "}
+                  <em>Perspectives on Psychological Science</em>, 7(5),
+                  482&ndash;495.
+                </li>
+                <li>
+                  [6] Mason, O.J., &amp; Brady, F. (2009). The psychotomimetic
+                  effects of short-term sensory deprivation.{" "}
+                  <em>Journal of Nervous and Mental Disease</em>, 197(10),
+                  783&ndash;785.
+                </li>
+                <li>
+                  [7] Daniel, C., &amp; Mason, O.J. (2015). Predicting
+                  psychotic-like experiences during sensory deprivation.{" "}
+                  <em>BioMed Research International</em>, 2015, 439379.
+                </li>
+                <li>
+                  [8] Lashgari, E., et al. (2025). A systematic review of
+                  flotation-REST.{" "}
+                  <em>BMC Complementary Medicine and Therapies</em>, 25, 230.
+                </li>
+                <li>
+                  [9] Feinstein, J.S., et al. (2018). Examining the short-term
+                  anxiolytic and antidepressant effect of floatation-REST.{" "}
+                  <em>PLOS One</em>, 13(2), e0190292.
+                </li>
+              </ol>
+            )}
           </div>
         </div>
       </footer>
