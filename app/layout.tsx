@@ -2,6 +2,7 @@ import { Playfair_Display, DM_Sans } from "next/font/google"
 
 import "./globals.css"
 import { cn } from "@/lib/utils"
+import { Toaster } from "@/components/ui/sonner"
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -31,7 +32,10 @@ export default function RootLayout({
       lang="en"
       className={cn("antialiased", playfair.variable, dmSans.variable)}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+      </body>
     </html>
   )
 }

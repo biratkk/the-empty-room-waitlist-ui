@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -38,25 +39,67 @@ function Section({
 
 function EmailCapture({
   buttonText = "Claim my spot",
+  joined,
+  onJoin,
 }: {
   buttonText?: string
+  joined: boolean
+  onJoin: () => void
 }) {
+  const [submitting, setSubmitting] = useState(false)
+
+  if (joined) {
+    return (
+      <p className="text-sm font-medium tracking-wide text-accent">
+        You are now on the waitlist.
+      </p>
+    )
+  }
+
   return (
     <form
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={async (e) => {
+        e.preventDefault()
+        const form = e.currentTarget
+        const email = new FormData(form).get("email") as string
+        if (!email) return
+
+        setSubmitting(true)
+        try {
+          const res = await fetch("/api/waitlist", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          })
+          const data = await res.json()
+
+          if (res.ok) {
+            toast.success("You are now on the waitlist!")
+            onJoin()
+          } else {
+            toast.error(data.error || "Something went wrong.")
+          }
+        } catch {
+          toast.error("Something went wrong. Please try again.")
+        } finally {
+          setSubmitting(false)
+        }
+      }}
       className="flex w-full max-w-md flex-col gap-3 sm:flex-row"
     >
       <Input
         type="email"
+        name="email"
         placeholder="Your email"
         required
         className="h-11 flex-1 rounded-md border-border bg-white/60 px-4 text-base tracking-wide placeholder:text-muted-foreground/60"
       />
       <Button
         type="submit"
-        className="h-11 rounded-md bg-foreground px-6 text-sm tracking-widest text-background uppercase transition-all duration-300 hover:bg-foreground/85"
+        disabled={submitting}
+        className="h-11 rounded-md bg-foreground px-6 text-sm tracking-widest text-background uppercase transition-all duration-300 hover:bg-foreground/85 disabled:opacity-50"
       >
-        {buttonText}
+        {submitting ? "Joining..." : buttonText}
       </Button>
     </form>
   )
@@ -123,6 +166,7 @@ function ScienceSubsection({
 export default function Page() {
   const [citationsOpen, setCitationsOpen] = useState(false)
   const [researchOpen, setResearchOpen] = useState(false)
+  const [joined, setJoined] = useState(false)
 
   return (
     <main className="min-h-screen">
@@ -153,7 +197,7 @@ export default function Page() {
             <p className="text-sm font-medium tracking-wide">
               Join the waitlist &mdash; first session &pound;3
             </p>
-            <EmailCapture />
+            <EmailCapture joined={joined} onJoin={() => setJoined(true)} />
             <p className="mt-2 text-xs tracking-wide text-muted-foreground/70">
               No spam. Just an email when we open.
             </p>
@@ -569,7 +613,7 @@ export default function Page() {
           </p>
 
           <div className="mt-12">
-            <EmailCapture buttonText="I'm in" />
+            <EmailCapture buttonText="I'm in" joined={joined} onJoin={() => setJoined(true)} />
             <p className="mt-4 text-xs tracking-wide text-muted-foreground/70">
               We&rsquo;ll email you when your nearest room opens. Nothing else.
             </p>
@@ -687,7 +731,7 @@ export default function Page() {
         </h2>
 
         <div className="mt-12 flex w-full flex-col items-center gap-4">
-          <EmailCapture buttonText="Join the waitlist" />
+          <EmailCapture buttonText="Join the waitlist" joined={joined} onJoin={() => setJoined(true)} />
           <p className="mt-2 text-sm text-muted-foreground">
             First session &pound;3. No commitment. Just a room.
           </p>
